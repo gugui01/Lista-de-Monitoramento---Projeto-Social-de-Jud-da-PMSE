@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editor de Lista - Projeto Social de Judô da PMSE</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f2f5;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e63946;
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            margin: 10px 0;
+            color: #1d3557;
+        }
+        
+        .header h2 {
+            font-size: 18px;
+            margin: 5px 0;
+            font-weight: normal;
+            color: #457b9d;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        
+        .btn-add {
+            background-color: #2a9d8f;
+            color: white;
+        }
+        
+        .btn-add:hover {
+            background-color: #21867a;
+        }
+        
+        .btn-save {
+            background-color: #e63946;
+            color: white;
+        }
+        
+        .btn-save:hover {
+            background-color: #d32f2f;
+        }
+        
+        .btn-edit {
+            background-color: #f4a261;
+            color: white;
+        }
+        
+        .btn-edit:hover {
+            background-color: #e76f51;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 14px;
+            table-layout: fixed;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+            word-wrap: break-word;
+        }
+        
+        th {
+            background-color: #1d3557;
+            color: white;
+            position: sticky;
+            top: 0;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        
+        .num-col {
+            width: 5%;
+        }
+        
+        .nome-col {
+            width: 25%;
+        }
+        
+        .idade-col {
+            width: 7%;
+        }
+        
+        .faixa-atual-col {
+            width: 12%;
+        }
+        
+        .faixa-aspirante-col {
+            width: 12%;
+        }
+        
+        .tamanho-col {
+            width: 10%;
+        }
+        
+        .obs-col {
+            width: 15%;
+        }
+        
+        .actions-col {
+            width: 10%;
+        }
+        
+        .editable {
+            background-color: #ffeaa7;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 25px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .close {
+            font-size: 24px;
+            cursor: pointer;
+            color: #aaa;
+        }
+        
+        .close:hover {
+            color: #000;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #1d3557;
+        }
+        
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+            }
+            
+            .buttons {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            button {
+                flex: 1;
+            }
+            
+            table {
+                font-size: 12px;
+            }
+            
+            th, td {
+                padding: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>EDITOR DE LISTA DE MONITORAMENTO</h1>
+            <h2>PROJETO SOCIAL DE JUDÔ DA PMSE</h2>
+            <h2>EXAME DE FAIXA 2° SEMESTRE 2025</h2>
+        </div>
+
+        <div class="controls">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Pesquisar por nome...">
+            </div>
+            <div class="buttons">
+                <button class="btn-add" onclick="openModal()">Adicionar Aluno</button>
+                <button class="btn-save" onclick="saveData()">Salvar Alterações</button>
+            </div>
+        </div>
+
+        <table id="monitoringTable">
+            <thead>
+                <tr>
+                    <th class="num-col">N°</th>
+                    <th class="nome-col">NOME</th>
+                    <th class="idade-col">IDADE</th>
+                    <th class="faixa-atual-col">FAIXA ATUAL</th>
+                    <th class="faixa-aspirante-col">FAIXA ASPIRANTE</th>
+                    <th class="tamanho-col">TAMANHO FAIXA</th>
+                    <th class="obs-col">OBSERVAÇÃO</th>
+                    <th class="actions-col">AÇÕES</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                <!-- Os dados serão inseridos aqui via JavaScript -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Modal para adicionar/editar alunos -->
+    <div id="studentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Adicionar Novo Aluno</h2>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <form id="studentForm">
+                <input type="hidden" id="studentId">
+                <div class="form-group">
+                    <label for="nome">Nome completo:</label>
+                    <input type="text" id="nome" required>
+                </div>
+                <div class="form-group">
+                    <label for="idade">Idade:</label>
+                    <input type="number" id="idade" min="0">
+                </div>
+                <div class="form-group">
+                    <label for="faixaAtual">Faixa atual:</label>
+                    <select id="faixaAtual">
+                        <option value="">Selecione...</option>
+                        <option value="BRANCA">Branca</option>
+                        <option value="CINZA">Cinza</option>
+                        <option value="CINZA/PONTA BRANCA">Cinza/Ponta Branca</option>
+                        <option value="CINZA/PONTA VERDE">Cinza/Ponta Verde</option>
+                        <option value="AMARELA">Amarela</option>
+                        <option value="LARANJA">Laranja</option>
+                        <option value="AZUL">Azul</option>
+                        <option value="VERDE">Verde</option>
+                        <option value="ROXA">Roxa</option>
+                        <option value="MARROM">Marrom</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="faixaAspirante">Faixa aspirante:</label>
+                    <select id="faixaAspirante">
+                        <option value="">Selecione...</option>
+                        <option value="CINZA">Cinza</option>
+                        <option value="CINZA/PONTA BRANCA">Cinza/Ponta Branca</option>
+                        <option value="CINZA/PONTA VERDE">Cinza/Ponta Verde</option>
+                        <option value="AMARELA">Amarela</option>
+                        <option value="LARANJA">Laranja</option>
+                        <option value="AZUL">Azul</option>
+                        <option value="VERDE">Verde</option>
+                        <option value="ROXA">Roxa</option>
+                        <option value="MARROM">Marrom</option>
+                        <option value="PRETA">Preta</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="tamanhoFaixa">Tamanho da faixa:</label>
+                    <select id="tamanhoFaixa">
+                        <option value="">Selecione...</option>
+                        <option value="Nº 0">Nº 0</option>
+                        <option value="Nº 1">Nº 1</option>
+                        <option value="Nº 2">Nº 2</option>
+                        <option value="Nº 3">Nº 3</option>
+                        <option value="Nº 4">Nº 4</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="observacao">Observação:</label>
+                    <input type="text" id="observacao" placeholder="Ex: SEM JUDOGUI">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-edit" onclick="closeModal()">Cancelar</button>
+                    <button type="submit" class="btn-save">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Dados iniciais (seriam carregados de um servidor em uma aplicação real)
+        let students = [
+            {id: 1, nome: "Adelton Santana dos Santos", idade: 38, faixaAtual: "AMARELA", faixaAspirante: "", tamanhoFaixa: "Nº 03", observacao: ""},
+            {id: 2, nome: "Adryan Alves da Silva Rezende", idade: "", faixaAtual: "", faixaAspirante: "", tamanhoFaixa: "N º", observacao: ""},
+            {id: 3, nome: "Agatha Francielly Fernandes Nascimento", idade: "", faixaAtual: "", faixaAspirante: "", tamanhoFaixa: "N º", observacao: ""},
+            // ... outros alunos (apenas alguns exemplos para demonstração)
+            {id: 13, nome: "Ana Paula do Nascimento Silva Lisboa", idade: 50, faixaAtual: "ROXA", faixaAspirante: "MARROM", tamanhoFaixa: "Nº 3", observacao: ""},
+            {id: 21, nome: "Bruna Gabrielly Bispo Vasconcelos", idade: 5, faixaAtual: "BRANCA", faixaAspirante: "", tamanhoFaixa: "N º", observacao: "SEM JUDOGUI"},
+            {id: 40, nome: "Emanuel Felipe Rodrigues Santos", idade: 18, faixaAtual: "BRANCA", faixaAspirante: "", tamanhoFaixa: "Nº 02", observacao: "SEM JUDOGUI"},
+            {id: 97, nome: "Mikaelle Atanazio Santos", idade: 21, faixaAtual: "ROXA", faixaAspirante: "MARROM", tamanhoFaixa: "Nº02", observacao: ""},
+            {id: 130, nome: "João Pedro Alves Costa", idade: 14, faixaAtual: "VERDE", faixaAspirante: "", tamanhoFaixa: "Nº 02", observacao: ""}
+        ];
+
+        // Variável para controlar a edição
+        let editingId = null;
+
+        // Inicializar a tabela
+        function initTable() {
+            const tableBody = document.getElementById('tableBody');
+            tableBody.innerHTML = '';
+            
+            students.forEach(student => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${student.id}</td>
+                    <td>${student.nome}</td>
+                    <td>${student.idade}</td>
+                    <td>${student.faixaAtual}</td>
+                    <td>${student.faixaAspirante}</td>
+                    <td>${student.tamanhoFaixa}</td>
+                    <td>${student.observacao}</td>
+                    <td>
+                        <button class="btn-edit" onclick="editStudent(${student.id})">Editar</button>
+                        <button class="btn-save" onclick="deleteStudent(${student.id})">Excluir</button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+            
+            // Adicionar linhas vazias até o número 130
+            for (let i = students.length + 1; i <= 130; i++) {
+                const emptyRow = document.createElement('tr');
+                emptyRow.innerHTML = `
+                    <td>${i}</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>
+                        <button class="btn-edit" onclick="addToPosition(${i})">Adicionar</button>
+                    </td>
+                `;
+                tableBody.appendChild(emptyRow);
+            }
+        }
+
+        // Abrir modal para adicionar/editar aluno
+        function openModal(studentId = null) {
+            const modal = document.getElementById('studentModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const form = document.getElementById('studentForm');
+            
+            if (studentId) {
+                // Modo edição
+                modalTitle.textContent = "Editar Aluno";
+                const student = students.find(s => s.id === studentId);
+                if (student) {
+                    document.getElementById('studentId').value = student.id;
+                    document.getElementById('nome').value = student.nome;
+                    document.getElementById('idade').value = student.idade;
+                    document.getElementById('faixaAtual').value = student.faixaAtual;
+                    document.getElementById('faixaAspirante').value = student.faixaAspirante;
+                    document.getElementById('tamanhoFaixa').value = student.tamanhoFaixa;
+                    document.getElementById('observacao').value = student.observacao;
+                    editingId = studentId;
+                }
+            } else {
+                // Modo adição
+                modalTitle.textContent = "Adicionar Novo Aluno";
+                form.reset();
+                editingId = null;
+            }
+            
+            modal.style.display = 'flex';
+        }
+
+        // Fechar o modal
+        function closeModal() {
+            document.getElementById('studentModal').style.display = 'none';
+        }
+
+        // Salvar dados do formulário
+        function saveStudent(event) {
+            event.preventDefault();
+            
+            const studentId = document.getElementById('studentId').value;
+            const nome = document.getElementById('nome').value;
+            const idade = document.getElementById('idade').value;
+            const faixaAtual = document.getElementById('faixaAtual').value;
+            const faixaAspirante = document.getElementById('faixaAspirante').value;
+            const tamanhoFaixa = document.getElementById('tamanhoFaixa').value;
+            const observacao = document.getElementById('observacao').value;
+            
+            if (editingId) {
+                // Atualizar aluno existente
+                const index = students.findIndex(s => s.id === editingId);
+                if (index !== -1) {
+                    students[index] = {
+                        id: editingId,
+                        nome,
+                        idade,
+                        faixaAtual,
+                        faixaAspirante,
+                        tamanhoFaixa,
+                        observacao
+                    };
+                }
+            } else {
+                // Adicionar novo aluno
+                const newId = students.length > 0 ? Math.max(...students.map(s => s.id)) + 1 : 1;
+                students.push({
+                    id: newId,
+                    nome,
+                    idade,
+                    faixaAtual,
+                    faixaAspirante,
+                    tamanhoFaixa,
+                    observacao
+                });
+            }
+            
+            initTable();
+            closeModal();
+        }
+
+        // Editar aluno
+        function editStudent(id) {
+            openModal(id);
+        }
+
+        // Excluir aluno
+        function deleteStudent(id) {
+            if (confirm('Tem certeza que deseja excluir este aluno?')) {
+                students = students.filter(student => student.id !== id);
+                initTable();
+            }
+        }
+
+        // Adicionar aluno em uma posição específica
+        function addToPosition(position) {
+            openModal();
+            // Em uma implementação completa, isso definiria a posição
+        }
+
+        // Salvar todos os dados (simulando salvamento no servidor)
+        function saveData() {
+            alert('Dados salvos com sucesso! Em uma aplicação real, os dados seriam enviados para um servidor.');
+            // Aqui viria o código para enviar os dados para o servidor
+        }
+
+        // Pesquisar alunos
+        function searchStudents() {
+            const searchText = document.getElementById('searchInput').value.toLowerCase();
+            const rows = document.querySelectorAll('#tableBody tr');
+            
+            rows.forEach(row => {
+                const name = row.cells[1].textContent.toLowerCase();
+                if (name.includes(searchText)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        // Inicializar a aplicação
+        document.addEventListener('DOMContentLoaded', function() {
+            initTable();
+            document.getElementById('studentForm').addEventListener('submit', saveStudent);
+            document.getElementById('searchInput').addEventListener('input', searchStudents);
+        });
+
+        // Fechar o modal se clicar fora dele
+        window.onclick = function(event) {
+            const modal = document.getElementById('studentModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        };
+    </script>
+</body>
+</html>
